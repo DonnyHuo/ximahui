@@ -1,0 +1,45 @@
+@font-face {
+  font-family: Montserrat;
+  src: url('./assets/fonts/Montserrat-Medium.ttf');
+}
+
+html,body {
+  font-family: Montserrat;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+ 
+}
+body::-webkit-scrollbar {
+  display: none;
+}
+#root {
+ @apply min-h-screen max-w-[500px] mx-auto text-black bg-white;
+}
+
+.content-box {
+  @apply !pb-[50px];
+}
+
+.Toastify .Toastify__toast {
+  font-family: Montserrat;
+}
+
+.home {
+  @apply px-[20px] pt-[10px] pb-[30px] min-h-screen max-w-[500px] mx-auto text-black;
+}
+
+.invite-bg {
+  background-image: url('assets/img/inviteBg.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.introduction {
+  min-height: calc(100vh - 44px);
+  background-image: url('assets/img/bgJ.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+.shadow {
+  text-shadow: 2px 2px 0px rgba(135, 9, 29, 0.8);
+}
+
