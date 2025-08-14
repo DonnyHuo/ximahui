@@ -629,7 +629,7 @@ const Home = () => {
             alt=""
           /> */}
         </div>
-        <div className="relative bg-black mt-[20px] rounded-[12px] text-[#8E58F5] font-bold px-[24px] border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.05)] text-center py-[30px]">
+        <div className="relative mt-[20px] rounded-[12px] text-[#8E58F5] font-bold px-[24px] border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.05)] text-center py-[30px]">
           <div className="text-[30px] font-bold bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent">
             {Number(stakedAmount).toFixed(2)}
             <span className="text-xl pl-1">{rewardTokenInfo?.symbol}</span>
