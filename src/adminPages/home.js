@@ -164,12 +164,12 @@ const AdminHome = () => {
     stakingContractAddress
   ]);
 
-  useEffect(() => {
-    if (ethers.utils.isAddress(search)) {
-      getList(search);
-      getUserInfo(search);
-    }
-  }, [getUserInfo, search]);
+  // useEffect(() => {
+  //   if (ethers.utils.isAddress(search)) {
+  //     getList(search);
+  //     getUserInfo(search);
+  //   }
+  // }, [getUserInfo, search]);
 
   const NoData = () => {
     return (
