@@ -6,7 +6,6 @@ import {
 } from "../../src/utils";
 import { ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Marquee from "react-fast-marquee";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { useSearchParams, Link } from "react-router-dom";
@@ -17,16 +16,9 @@ import { GiftO, FireO } from "@react-vant/icons";
 
 import erc20Abi from "../../src/assets/abi/erc20.json";
 import stakeAbi from "../../src/assets/abi/stakingContract.json";
-import stakeAbiV2 from "../../src/assets/abi/stakingContractV2.json";
-import Card from "../../src/assets/img/card.jpeg";
-import Card2 from "../../src/assets/img/card2.jpg";
 import { ReactComponent as Click } from "../../src/assets/img/click.svg";
 import { ReactComponent as Copy } from "../../src/assets/img/copy.svg";
-import { ReactComponent as Money } from "../../src/assets/img/money.svg";
-import { ReactComponent as Notice } from "../../src/assets/img/notice.svg";
 import { fetchData } from "../http/request";
-import { setVersion } from "../store/slice";
-import { store } from "../store";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -38,36 +30,14 @@ const Home = () => {
     setSearchParams(searchParams);
   };
 
-  const versionFromUrl = searchParams.get("version");
-
-  if (versionFromUrl) {
-    store.dispatch(setVersion(Number(versionFromUrl)));
-  }
-
   const invite = searchParams.get("invite");
 
   const address = useSelector((state) => state.address);
-  const version = useSelector((state) => state.version);
 
   const usdtAddress = useSelector((state) => state.usdtAddress);
 
-  const stakingContractAddressV1 = useSelector(
+  const stakingContractAddress = useSelector(
     (state) => state.stakingContractAddress
-  );
-  const stakingContractAddressV2 = useSelector(
-    (state) => state.stakingContractAddressV2
-  );
-
-  const stakingContractAddressV3 = useSelector(
-    (state) => state.stakingContractAddressV3
-  );
-
-  const stakingContractAddress = useSelector((state) =>
-    version === 2
-      ? state.stakingContractAddressV2
-      : version === 3
-      ? state.stakingContractAddressV3
-      : state.stakingContractAddress
   );
 
   const [allowance, setAllowance] = useState(0);
@@ -126,33 +96,109 @@ const Home = () => {
 
   const [stakedAmount, setStakedAmount] = useState(0);
 
+  const [usdtDecimals, setUsdtDecimals] = useState("18");
+
+  const getDecimals = async () => {
+    const decimals = await getContract(usdtAddress, erc20Abi, "decimals");
+
+    setUsdtDecimals(decimals.toString());
+  };
+
+  useEffect(() => {
+    getDecimals();
+  });
+
+  const [maxAmountSupport, setMaxAmountSupport] = useState(true);
+
+  const [maxAmountValue, setMaxAmountValue] = useState(0);
+
+  const [minStake, setMinStake] = useState(0);
+
+  const [allStaked, setAllStaked] = useState(0);
+
+  const getMaxAmountSupport = async () => {
+    const maxAmountSupport = await getContract(
+      stakingContractAddress,
+      stakeAbi,
+      "maxAmountSupport"
+    );
+    console.log("maxAmountSupport", maxAmountSupport);
+
+    setMaxAmountSupport(maxAmountSupport);
+  };
+
+  const getMaxAmount = async () => {
+    const maxAmountValue = await getContract(
+      stakingContractAddress,
+      stakeAbi,
+      "maxAmountValue"
+    );
+    console.log("maxAmountValue", maxAmountValue);
+
+    setMaxAmountValue(ethers.utils.formatUnits(maxAmountValue, usdtDecimals));
+  };
+
+  const getAllStaked = async () => {
+    const users = await getContract(
+      stakingContractAddress,
+      stakeAbi,
+      "users",
+      address
+    );
+
+    setAllStaked(ethers.utils.formatUnits(users?.allStaked, usdtDecimals));
+  };
+
+  const getMinStake = async () => {
+    const minStake = await getContract(
+      stakingContractAddress,
+      stakeAbi,
+      "MIN_STAKE"
+    );
+
+    setMinStake(ethers.utils.formatUnits(minStake, usdtDecimals));
+  };
+
+  useEffect(() => {
+    if (address) {
+      getAllStaked();
+    }
+    getMaxAmountSupport();
+    getMinStake();
+    getMaxAmount();
+  }, [address]);
+
   const canStake = useMemo(() => {
     if (stakeValue * 1 > rewardTokenInfo?.balance) {
       return false;
     }
-    if ((stakeValue * 1) % 100 !== 0) {
+    if (stakeValue * 1 < minStake * 1) {
       return false;
     }
-    if (stakeValue * 1 < 500) {
-      return false;
+    if (maxAmountSupport) {
+      if (stakeValue * 1 > maxAmountValue * 1 - allStaked * 1) {
+        return false;
+      }
     }
-    if (stakedAmount && [1, 2].includes(version)) {
-      return false;
-    }
+
     return true;
-  }, [rewardTokenInfo?.balance, stakeValue, stakedAmount, version]);
+  }, [
+    allStaked,
+    maxAmountSupport,
+    maxAmountValue,
+    minStake,
+    rewardTokenInfo?.balance,
+    stakeValue
+  ]);
 
   const stakeFun = async () => {
-    if (stakedAmount && [1, 2].includes(version)) {
-      return;
-    }
     setStakeLoading(true);
-    const decimals = await getContract(usdtAddress, erc20Abi, "decimals");
+
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "stake",
-      ethers.utils.parseUnits(stakeValue, decimals)
+      ethers.utils.parseUnits(stakeValue, usdtDecimals)
     )
       .then((res) => {
         console.log(res);
@@ -200,15 +246,10 @@ const Home = () => {
 
       return () => clearInterval(timer);
     }
-  }, [address, version]);
+  }, [address]);
 
   const getUserInfo = useCallback(async () => {
-    await getContract(
-      stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
-      "getUserInfo",
-      address
-    )
+    await getContract(stakingContractAddress, stakeAbi, "getUserInfo", address)
       .then((userInfo) => {
         setUserInfo({
           claimedRewards:
@@ -241,8 +282,7 @@ const Home = () => {
     address,
     rewardTokenInfo?.decimals,
     rewardTokenInfo?.symbol,
-    stakingContractAddress,
-    version
+    stakingContractAddress
   ]);
 
   useEffect(() => {
@@ -259,11 +299,7 @@ const Home = () => {
 
   const claimFun = async () => {
     setClaimLoading(true);
-    await getWriteContractLoad(
-      stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
-      "claimRewards"
-    )
+    await getWriteContractLoad(stakingContractAddress, "claimRewards")
       .then((res) => {
         toast.success(t("claimSuccess"));
       })
@@ -284,22 +320,6 @@ const Home = () => {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (invite && [3].includes(version)) {
-      if (!loading) {
-        if (staked) {
-          setShowTips(true);
-        } else {
-          if (Boolean(referrer)) {
-            setVisibleTip(true);
-          } else {
-            setVisible(true);
-          }
-        }
-      }
-    }
-  }, [referrer, invite, t, staked, version, loading]);
-
   const [bindLoading, setBindLoading] = useState(false);
 
   const bindReferrerFun = async () => {
@@ -312,7 +332,7 @@ const Home = () => {
 
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "bindReferrer",
       invite.toLocaleLowerCase(),
       overrides
@@ -343,7 +363,7 @@ const Home = () => {
 
     await getWriteContractLoad(
       stakingContractAddress,
-      stakeAbiV2,
+      stakeAbi,
       "bindReferrer",
       inviter.toLocaleLowerCase(),
       overrides
@@ -356,7 +376,6 @@ const Home = () => {
         toast.error(t("bindFail"));
       })
       .finally(() => {
-        setShowChangeVersionModal(false);
         setReBindLoading(false);
       });
   };
@@ -400,31 +419,18 @@ const Home = () => {
 
   const getStaked = async (address) => {
     setLoading(true);
-    let data = "";
-    if (version === 3) {
-      data = `query {
-        user(id: "${address}"){
-            currentStakedAmount
-            referrer{
-              id
-            }
-        }   
-      }`;
-    } else {
-      data = `query {
-        user(id: "${address}"){
-            stakedAmount
-            referrer{
-              id
-            }
-        }   
-      }`;
-    }
+    const data = `query {
+      user(id: "${address}"){
+          currentStakedAmount
+          referrer{
+            id
+          }
+      }   
+    }`;
 
     const res = await fetchData(data);
 
-    const stakedAmount =
-      version === 3 ? res?.user?.currentStakedAmount : res?.user?.stakedAmount;
+    const stakedAmount = res?.user?.currentStakedAmount;
 
     setStakedAmount(stakedAmount ? stakedAmount / 10 ** 18 : 0);
 
@@ -442,147 +448,7 @@ const Home = () => {
       getRewardList(address);
       getStaked(address);
     }
-  }, [address, version]);
-
-  // console.log(staked);
-
-  const [stakeInfoV1, setStakeInfoV1] = useState({
-    referrer: ethers.constants.AddressZero,
-    staked: ""
-  });
-
-  const [stakeInfoV2, setStakeInfoV2] = useState({
-    referrer: "",
-    isNotStaked: ""
-  });
-
-  const [stakeInfoV3, setStakeInfoV3] = useState({
-    referrer: "",
-    isNotStaked: ""
-  });
-
-  const getV1Staked = useCallback(async () => {
-    const amounts = await getContract(
-      stakingContractAddressV1,
-      stakeAbi,
-      "users",
-      address
-    );
-
-    if (amounts.referrer !== ethers.constants.AddressZero) {
-      const res = await getContract(
-        stakingContractAddressV2,
-        stakeAbiV2,
-        "users",
-        amounts.referrer
-      );
-      setStakeInfoV1({
-        referrer: amounts.referrer,
-        staked: res.totalStaked.toString() * 1 > 0
-      });
-    }
-  }, [address, stakingContractAddressV1, stakingContractAddressV2]);
-
-  const getV2Staked = useCallback(async () => {
-    const amounts = await getContract(
-      stakingContractAddressV2,
-      stakeAbiV2,
-      "users",
-      address
-    );
-
-    if (version === 2) {
-      setStakeInfoV2({
-        referrer: amounts.referrer,
-        isNotStaked: amounts.totalStaked.toString() * 1 === 0
-      });
-    }
-    if (version === 3) {
-      if (amounts.referrer !== ethers.constants.AddressZero) {
-        const res = await getContract(
-          stakingContractAddressV3,
-          stakeAbiV2,
-          "users",
-          amounts.referrer
-        );
-
-        setStakeInfoV2({
-          referrer: amounts.referrer,
-          staked: res.totalStaked.toString() * 1 > 0
-        });
-      }
-    }
-  }, [address, stakingContractAddressV2, stakingContractAddressV3, version]);
-
-  const getV3Staked = useCallback(async () => {
-    const amounts = await getContract(
-      stakingContractAddressV3,
-      stakeAbiV2,
-      "users",
-      address
-    );
-
-    setStakeInfoV3({
-      referrer: amounts.referrer,
-      isNotStaked: amounts.totalStaked.toString() * 1 === 0
-    });
-  }, [address, stakingContractAddressV3]);
-
-  useEffect(() => {
-    if (version === 2 && address) {
-      getV1Staked();
-      getV2Staked();
-    }
-    if (version === 3 && address) {
-      getV2Staked();
-      getV3Staked();
-    }
-  }, [getV1Staked, getV2Staked, address, version, getV3Staked]);
-
-  const showChangeVersionBindReffer = useMemo(() => {
-    if (version === 2) {
-      return (
-        stakeInfoV2?.referrer === ethers.constants.AddressZero &&
-        stakeInfoV2.isNotStaked &&
-        stakeInfoV1.referrer !== ethers.constants.AddressZero &&
-        stakeInfoV1.staked
-      );
-    }
-    if (version === 3) {
-      return (
-        stakeInfoV3?.referrer === ethers.constants.AddressZero &&
-        stakeInfoV3.isNotStaked &&
-        stakeInfoV2.referrer !== ethers.constants.AddressZero &&
-        stakeInfoV2.staked
-      );
-    }
-  }, [
-    version,
-    stakeInfoV2.referrer,
-    stakeInfoV2.isNotStaked,
-    stakeInfoV2.staked,
-    stakeInfoV1.referrer,
-    stakeInfoV1.staked,
-    stakeInfoV3?.referrer,
-    stakeInfoV3.isNotStaked
-  ]);
-
-  const [showChangeVersionModal, setShowChangeVersionModal] = useState(false);
-
-  useEffect(() => {
-    setShowChangeVersionModal(showChangeVersionBindReffer);
-  }, [showChangeVersionBindReffer]);
-
-  // const [versionState, setVersionState] = useState(version);
-
-  // const changeVersion = (value) => {
-  //   setVersionState(value);
-  //   setSearchParams({ version: value });
-  //   store.dispatch(setVersion(value));
-  //   setTimeout(() => {
-  //     window.location.reload();
-  //   });
-  // };
+  }, [address]);
 
   return (
     <div className="content-box bg-[#0D0E1E]">
@@ -598,36 +464,7 @@ const Home = () => {
             <p className="bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent text-center text-2xl">
               {t("welcome")}
             </p>
-            {/* <div>
-                <Link
-                  className="text-[14px] font-bold underline text-[#8E58F5]"
-                  to="/introduction"
-                >
-                  {t("foundationIntroduction")}
-                </Link>
-              </div> */}
-            {/* <div className="flex items-center gap-2">
-              <Switch
-                size="20px"
-                activeColor={"#000000"}
-                inactiveColor={"#8E58F5"}
-                defaultChecked={versionState}
-                activeValue={3}
-                inactiveValue={2}
-                onChange={changeVersion}
-              />
-              <span className="text-[12px]">
-                {version === 2 && <>{t("switch")}</>}
-                {version === 3 && <>{t("switchV3")}</>}
-              </span>
-            </div> */}
           </div>
-
-          {/* <img
-            className="rounded-[24px]"
-            src={version === 3 ? Card2 : Card}
-            alt=""
-          /> */}
         </div>
         <div className="relative mt-[20px] rounded-[12px] text-[#8E58F5] font-bold px-[24px] border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.05)] text-center py-[30px]">
           <div className="text-[30px] font-bold bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent">
@@ -654,7 +491,7 @@ const Home = () => {
           <input
             value={stakeValue}
             className="w-full h-[40px] border border-solid bg-transparent border-[#333] rounded-[55px] px-4 focus:border-[#C07DFF] text-white text-[14px]"
-            placeholder="≥500"
+            placeholder={`≥ ${minStake}`}
             type="text"
             onChange={(e) => setStakeValue(e.target.value)}
           />
@@ -668,16 +505,10 @@ const Home = () => {
                 onClick={stakeFun}
                 disabled={!canStake}
               >
-                {stakedAmount && [1, 2].includes(version) ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span>{t("rebet")}</span>
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <FireO fontSize={"20px"} />
-                    <span>{t("bet")}</span>
-                  </span>
-                )}
+                <span className="flex items-center justify-center gap-2">
+                  <FireO fontSize={"20px"} />
+                  <span>{t("bet")}</span>
+                </span>
               </Button>
             ) : (
               <Button
@@ -702,17 +533,15 @@ const Home = () => {
             {t("accelerateEarnings")}
             <Click className="absolute -right-4 -bottom-6" />
           </Link>
-          {version === 3 && (
-            <div className="flex items-center justify-between text-[12px] mt-[20px]">
-              <span>{t("totalAmount")}</span>
-              <span>
-                <span className="bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent text-[18px] font-bold">
-                  {Number(userInfo?.rewardLimit / 2 ?? 0).toFixed(6)}
-                </span>{" "}
-                {userInfo?.rewardToken}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center justify-between text-[12px] mt-[20px]">
+            <span>{t("totalAmount")}</span>
+            <span>
+              <span className="bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent text-[18px] font-bold">
+                {Number(userInfo?.rewardLimit / 2 ?? 0).toFixed(6)}
+              </span>{" "}
+              {userInfo?.rewardToken}
+            </span>
+          </div>
           <div className="flex items-center justify-between text-[12px] mt-[10px]">
             <span>{t("claimedReward")}</span>
             <span>
@@ -843,13 +672,7 @@ const Home = () => {
           }}
         >
           <div className="p-[20px] text-center text-[14px]">
-            <p className="font-bold mb-2">
-              {version === 2
-                ? t("switch")
-                : version === 3
-                ? t("switchV3")
-                : t("switchV1")}
-            </p>
+            <p className="font-bold mb-2">{t("switchV3")}</p>
             <p>{t("acceptInvitation", { address: shortStr(invite) })}</p>
           </div>
         </Dialog>
@@ -881,7 +704,7 @@ const Home = () => {
             {t("alreadyStaked")}
           </div>
         </Dialog>
-        <Dialog
+        {/* <Dialog
           visible={showChangeVersionModal}
           showCancelButton
           cancelButtonText={t("cancel")}
@@ -900,7 +723,7 @@ const Home = () => {
             <p>{t("invitationDetected")}</p>
             <p className="mt-2">{t("confirmToBind")}</p>
           </div>
-        </Dialog>
+        </Dialog> */}
       </div>
     </div>
   );

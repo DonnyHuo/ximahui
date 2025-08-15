@@ -7,7 +7,6 @@ import { Button } from "react-vant";
 
 import erc20Abi from "../../src/assets/abi/erc20.json";
 import stakeAbi from "../../src/assets/abi/stakingContract.json";
-import stakeAbiV2 from "../../src/assets/abi/stakingContractV2.json";
 import { ReactComponent as Cancel } from "../../src/assets/img/cancel.svg";
 import { ReactComponent as GoBack } from "../../src/assets/img/goBack.svg";
 import { ReactComponent as Hot } from "../../src/assets/img/hot.svg";
@@ -38,7 +37,7 @@ const Contract = () => {
     setTransferLoading(true);
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "transferOwnership",
       transferOwnerAddress
     )
@@ -75,7 +74,7 @@ const Contract = () => {
     setRewardRateLoading(true);
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "setRewardRate",
       rewardNumber,
       rewardRate * 100
@@ -105,7 +104,7 @@ const Contract = () => {
     setDailyRewardRateLoading(true);
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "setDailyRewardRate",
       dailyRewardRate * 100
     )
@@ -134,7 +133,7 @@ const Contract = () => {
     setMaxGenerationLoading(true);
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "setMaxGeneration",
       maxGeneration
     )
@@ -154,7 +153,7 @@ const Contract = () => {
   const getMaxGeneration = async () => {
     const res = await getContract(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "maxGeneration"
     );
 
@@ -177,7 +176,7 @@ const Contract = () => {
     if (ethers.utils.isAddress(blacklist)) {
       await getContract(
         stakingContractAddress,
-        [3].includes(version) ? stakeAbiV2 : stakeAbi,
+        stakeAbi,
         "isInBlacklist",
         blacklist
       ).then((res) => {
@@ -185,7 +184,7 @@ const Contract = () => {
         setInBlackList(res);
       });
     }
-  }, [blacklist, stakingContractAddress, version]);
+  }, [blacklist, stakingContractAddress]);
 
   useEffect(() => {
     getInBlackList();
@@ -202,7 +201,7 @@ const Contract = () => {
 
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "setBlacklist",
       blacklist,
       isDo
@@ -233,7 +232,7 @@ const Contract = () => {
     setMinDirectFriendsNumsLoading(true);
     await getWriteContractLoad(
       stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
+      stakeAbi,
       "setMinDirectFriendsNums",
       minDirectFriendsNums
     )
@@ -295,7 +294,7 @@ const Contract = () => {
     setWithdrawLoading(true);
     await getWriteContractLoad(
       stakingContractAddress,
-      stakeAbiV2,
+      stakeAbi,
       "withdrawBalance"
     )
       .then(() => {

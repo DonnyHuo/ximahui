@@ -7,7 +7,6 @@ import { toast, ToastContainer } from "react-toastify";
 
 import erc20Abi from "../../src/assets/abi/erc20.json";
 import stakeAbi from "../../src/assets/abi/stakingContract.json";
-import stakeAbiV2 from "../../src/assets/abi/stakingContractV2.json";
 import Total from "../../src/assets/img/adminTotal.png";
 import { ReactComponent as Copy } from "../../src/assets/img/copyWhite.svg";
 import { ReactComponent as Delete } from "../../src/assets/img/delete.svg";
@@ -65,9 +64,7 @@ const AdminHome = () => {
 
     const addr = address.toLowerCase();
 
-    let data = "";
-    if (version === 3) {
-      data = `query {
+    const data = `query {
         user(id: "${addr}"){
             teamSize
             referrer{
@@ -95,35 +92,7 @@ const AdminHome = () => {
           }   
         }
       }`;
-    } else {
-      data = `query {
-        user(id: "${addr}"){
-            teamSize
-            referrer{
-                id
-            }
-            referrals{
-                id 
-            }
-            teamSize
-            stakedAmount
-            totalRefferRewards
-            claimedRewards
-            contributions(orderBy: timestamp, orderDirection: desc,first:20){
-                id 
-                contributor{
-                    id
-                }
-            generation
-            amount
-            referralRecord{
-                transactionHash
-            }
-            timestamp
-          }   
-        }
-      }`;
-    }
+
     const res = await fetchData(data);
 
     setListLoading(false);
@@ -133,16 +102,10 @@ const AdminHome = () => {
     setUserInfo(inviteInfo);
   };
 
-  const version = useSelector((state) => state.version);
-
   const usdtAddress = useSelector((state) => state.usdtAddress);
 
-  const stakingContractAddress = useSelector((state) =>
-    version === 2
-      ? state.stakingContractAddressV2
-      : version === 3
-      ? state.stakingContractAddressV3
-      : state.stakingContractAddress
+  const stakingContractAddress = useSelector(
+    (state) => state.stakingContractAddress
   );
 
   const [rewardTokenInfo, setRewardTokenInfo] = useState();
@@ -164,12 +127,7 @@ const AdminHome = () => {
   const [userInfo2, setUserInfo2] = useState();
 
   const getUserInfo = useCallback(async () => {
-    await getContract(
-      stakingContractAddress,
-      [3].includes(version) ? stakeAbiV2 : stakeAbi,
-      "getUserInfo",
-      search
-    )
+    await getContract(stakingContractAddress, stakeAbi, "getUserInfo", search)
       .then((userInfo) => {
         console.log("userInfo", userInfo);
         setUserInfo2({
@@ -203,8 +161,7 @@ const AdminHome = () => {
     search,
     rewardTokenInfo?.decimals,
     rewardTokenInfo?.symbol,
-    stakingContractAddress,
-    version
+    stakingContractAddress
   ]);
 
   useEffect(() => {
@@ -416,24 +373,18 @@ const AdminHome = () => {
                         )}
                       </span>
                     </div>
-                    {version === 3 && (
-                      <div className="flex items-center justify-between py-2">
-                        <span>当前质押金额</span>
-                        <span className="text-[#8E58F5] font-bold">
-                          {formatDecimal(
-                            userInfo?.currentStakedAmount /
-                              10 ** rewardTokenInfo?.decimals ?? 18
-                          )}{" "}
-                          {rewardTokenInfo?.symbol}
-                        </span>
-                      </div>
-                    )}
                     <div className="flex items-center justify-between py-2">
-                      {version === 3 ? (
-                        <span>历史质押金额</span>
-                      ) : (
-                        <span>质押金额</span>
-                      )}
+                      <span>当前质押金额</span>
+                      <span className="text-[#8E58F5] font-bold">
+                        {formatDecimal(
+                          userInfo?.currentStakedAmount /
+                            10 ** rewardTokenInfo?.decimals ?? 18
+                        )}{" "}
+                        {rewardTokenInfo?.symbol}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <span>历史质押金额</span>
                       <span className="text-[#8E58F5] font-bold">
                         {formatDecimal(
                           userInfo?.stakedAmount /

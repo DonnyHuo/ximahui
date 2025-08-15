@@ -7,8 +7,6 @@ import { toast, ToastContainer } from "react-toastify";
 
 import erc20Abi from "../../src/assets/abi/erc20.json";
 import stakeAbi from "../../src/assets/abi/stakingContract.json";
-import stakeAbiV2 from "../../src/assets/abi/stakingContractV2.json";
-import stakeAbiV3 from "../../src/assets/abi/stakingContractV3.json";
 import { ReactComponent as CopyMainColor } from "../../src/assets/img/copyMainColor.svg";
 
 import { copy, getContract, shortStr, formatDecimal } from "../../src/utils";
@@ -19,16 +17,10 @@ const Invite = () => {
 
   const address = useSelector((state) => state.address);
 
-  const version = useSelector((state) => state.version);
-
   const usdtAddress = useSelector((state) => state.usdtAddress);
 
-  const stakingContractAddress = useSelector((state) =>
-    version === 2
-      ? state.stakingContractAddressV2
-      : version === 3
-      ? state.stakingContractAddressV3
-      : state.stakingContractAddress
+  const stakingContractAddress = useSelector(
+    (state) => state.stakingContractAddress
   );
 
   const [referrer, setReferrer] = useState(ethers.constants.AddressZero);
@@ -38,14 +30,14 @@ const Invite = () => {
   const getUsers = useCallback(async () => {
     const amounts = await getContract(
       stakingContractAddress,
-      version === 2 ? stakeAbiV2 : version === 3 ? stakeAbiV3 : stakeAbi,
+      stakeAbi,
       "users",
       address
     );
 
     setReferrer(amounts.referrer);
     setStaked(amounts.totalStaked.toString() * 1 > 0);
-  }, [stakingContractAddress, address, version]);
+  }, [stakingContractAddress, address]);
 
   const [rewardToken, setRewardToken] = useState();
 

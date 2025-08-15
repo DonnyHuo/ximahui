@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
 import stakeAbi from "../../src/assets/abi/stakingContract.json";
-import stakeAbiV2 from "../../src/assets/abi/stakingContractV2.json";
 import { getContract } from "../../src/utils";
 
 const Footer = () => {
@@ -15,28 +14,18 @@ const Footer = () => {
 
   const adminAddress = useSelector((state) => state.adminAddress);
 
-  const version = useSelector((state) => state.version);
-
-  const contractAddress = useSelector((state) =>
-    version === 2
-      ? state.stakingContractAddressV2
-      : version === 3
-      ? state.stakingContractAddressV3
-      : state.stakingContractAddress
-  );
-
-  const abi = [3].includes(version) ? stakeAbiV2 : stakeAbi;
+  const contractAddress = useSelector((state) => state.stakingContractAddress);
 
   const [showAdmin, setShowAdmin] = useState(false);
 
   const getOwner = useCallback(async () => {
-    const owner = await getContract(contractAddress, abi, "owner");
+    const owner = await getContract(contractAddress, stakeAbi, "owner");
     console.log("owner", owner);
     setShowAdmin(
       address.toLowerCase() === owner.toLowerCase() ||
         adminAddress.includes(address.toLowerCase())
     );
-  }, [abi, address, adminAddress, contractAddress]);
+  }, [address, adminAddress, contractAddress]);
 
   useEffect(() => {
     if (address) {
