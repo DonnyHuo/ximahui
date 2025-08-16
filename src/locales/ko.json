@@ -25,7 +25,7 @@
   "confirm": "확인",
   "bindSuccess": "바인딩 성공",
   "bindFail": "바인딩 실패",
-  "claimTips": "*미수령 보상이 100 {{name}} 이상인 경우에만 수령 가능합니다.",
+  "claimTips": "*미수령 보상이 {{amount}} {{name}} 이상인 경우에만 수령 가능합니다.",
   "shareTips": "자금을 충전한 경우에만 초대할 수 있습니다.",
   "myInviter": "나의 초대자",
   "alreadyAccepted": "이미 초대를 수락했습니다.",

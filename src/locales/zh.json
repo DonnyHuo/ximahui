@@ -25,7 +25,7 @@
   "confirm": "确认",
   "bindSuccess": "绑定成功",
   "bindFail": "绑定失败",
-  "claimTips": "*只有待领取奖励>=100 {{name}} 才可以领取",
+  "claimTips": "*只有待领取奖励>={{amount}} {{name}} 才可以领取",
   "shareTips": "只有注入资金才可邀请.",
   "myInviter": "我的邀请人",
   "alreadyAccepted": "已经接受过邀请了.",

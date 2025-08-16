@@ -25,7 +25,7 @@
   "confirm": "確認",
   "bindSuccess": "バインド成功",
   "bindFail": "バインド失敗",
-  "claimTips": "*未受け取りの報酬が100 {{name}}以上の場合のみ受け取れます。",
+  "claimTips": "*未受け取りの報酬が {{amount}} {{name}}以上の場合のみ受け取れます。",
   "shareTips": "資金を注入した場合のみ招待できます。",
   "myInviter": "私の招待者",
   "alreadyAccepted": "既に招待を受けています。",

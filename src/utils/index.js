@@ -67,6 +67,22 @@ export const formatDecimal = (num, decimals = 4) => {
   return Number(num.toFixed(decimals));
 };
 
+export function canDivide(a, b) {
+  if (b === 0) return;
+
+  const factor = Math.pow(
+    10,
+    Math.max(
+      (a.toString().split(".")[1] || "").length,
+      (b.toString().split(".")[1] || "").length
+    )
+  );
+  let aInt = Math.round(a * factor);
+  let bInt = Math.round(b * factor);
+
+  return bInt !== 0 && aInt % bInt === 0;
+}
+
 export {
   getContract,
   getWriteContract,

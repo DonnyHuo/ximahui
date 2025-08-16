@@ -2,7 +2,8 @@ import {
   shortStr,
   getContract,
   getWriteContractLoad,
-  copy
+  copy,
+  canDivide
 } from "../../src/utils";
 import { ethers } from "ethers";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -162,8 +163,6 @@ const Home = () => {
     getMaxAmount();
   }, [address]);
 
-  console.log("maxAmountSupport", maxAmountSupport, maxAmountValue);
-
   const canStake = useMemo(() => {
     if (stakeValue * 1 > rewardTokenInfo?.balance) {
       return false;
@@ -245,6 +244,7 @@ const Home = () => {
   const getUserInfo = useCallback(async () => {
     await getContract(stakingContractAddress, stakeAbi, "getUserInfo", address)
       .then((userInfo) => {
+        console.log("userInfo", userInfo);
         setUserInfo({
           claimedRewards:
             ethers.utils.formatUnits(
@@ -288,23 +288,6 @@ const Home = () => {
       return () => clearInterval(timer);
     }
   }, [address, getUserInfo]);
-
-  const [claimLoading, setClaimLoading] = useState(false);
-
-  const claimFun = async () => {
-    setClaimLoading(true);
-    await getWriteContractLoad(stakingContractAddress, "claimRewards")
-      .then((res) => {
-        toast.success(t("claimSuccess"));
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error(t("claimFail"));
-      })
-      .finally(() => {
-        setClaimLoading(false);
-      });
-  };
 
   const [visible, setVisible] = useState(invite);
 
@@ -414,6 +397,70 @@ const Home = () => {
     } else {
       setStakeValue(rewardTokenInfo?.balance);
     }
+  };
+
+  const [minClaimAmount, setMinClaimAmount] = useState(100);
+
+  const getMinClaimAmount = useCallback(async () => {
+    const amount = await getContract(
+      stakingContractAddress,
+      stakeAbi,
+      "minClaimAmount"
+    );
+    console.log("amount", amount);
+    setMinClaimAmount(ethers.utils.formatUnits(amount, usdtDecimals));
+  }, [stakingContractAddress, usdtDecimals]);
+
+  useEffect(() => {
+    getMinClaimAmount();
+  }, [getMinClaimAmount]);
+
+  const [openClaim, setOpenClaim] = useState(false);
+
+  const [claimValue, setClaimValue] = useState("");
+
+  const maxClaimFun = () => {
+    setClaimValue(
+      Math.floor(userInfo.pendingRewards / minClaimAmount) * minClaimAmount
+    );
+  };
+
+  const changeClaim = (e) => {
+    setClaimValue(e.target.value);
+  };
+
+  const canClaim = useMemo(() => {
+    if (claimValue === "") {
+      return false;
+    }
+    if (claimValue * 100 > userInfo.pendingRewards * 100) {
+      return false;
+    } else {
+      return canDivide(claimValue, minClaimAmount);
+    }
+  }, [claimValue, userInfo.pendingRewards, minClaimAmount]);
+
+  const [claimLoading, setClaimLoading] = useState(false);
+
+  const claimFun = async () => {
+    setClaimLoading(true);
+    await getWriteContractLoad(
+      stakingContractAddress,
+      stakeAbi,
+      "claimRewards",
+      ethers.utils.parseUnits(String(claimValue), usdtDecimals)
+    )
+      .then((res) => {
+        toast.success(t("claimSuccess"));
+        setOpenClaim(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error(t("claimFail"));
+      })
+      .finally(() => {
+        setClaimLoading(false);
+      });
   };
 
   return (
@@ -559,8 +606,8 @@ const Home = () => {
             round
             type="default"
             loading={claimLoading}
-            disabled={!(userInfo.pendingRewards * 1 >= 100)}
-            onClick={claimFun}
+            disabled={!(userInfo.pendingRewards * 1 >= minClaimAmount * 1)}
+            onClick={() => setOpenClaim(true)}
           >
             <span className="flex items-center justify-center gap-2">
               <GiftO fontSize={"20px"} />
@@ -568,7 +615,10 @@ const Home = () => {
             </span>
           </Button>
           <div className="text-[12px] text-[#9F9F9F] mt-[10px]">
-            {t("claimTips", { name: userInfo?.rewardToken })}
+            {t("claimTips", {
+              amount: minClaimAmount * 1,
+              name: userInfo?.rewardToken
+            })}
           </div>
         </div>
         <div className="mt-[20px] p-[20px] rounded-lg border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.05)] text-white">
@@ -579,7 +629,7 @@ const Home = () => {
             rewardList?.map((list) => {
               return (
                 <div
-                  className="py-2 border-0 border-b border-solid border-[#D8D8D8] last:border-b-0"
+                  className="py-2 border-0 border-b border-solid border-[#3e3e3e] last:border-b-0"
                   key={list.transactionHash}
                 >
                   <div className="flex items-center justify-between py-1">
@@ -608,6 +658,7 @@ const Home = () => {
                           toast.success(t("copySuccess"));
                         }}
                         className="w-4 h-4"
+                        fill="#767676"
                       />
                     </div>
                   </div>
@@ -651,6 +702,43 @@ const Home = () => {
             <p>{t("acceptInvitation", { address: shortStr(invite) })}</p>
           </div>
         </Dialog>
+
+        <Dialog visible={openClaim} className="p-4" showConfirmButton={false}>
+          <div className="text-center text-base font-bold">
+            {t("claimReward")}
+          </div>
+          <div className="mt-8 flex items-center justify-between gap-2">
+            <input
+              className="w-full rounded-xl border border-solid border-[#999] py-2 px-4 focus:border-[#8E58F5]"
+              type="text"
+              value={claimValue}
+              onChange={changeClaim}
+            />
+            <Button
+              className="bg-[#8E58F5] rounded-full text-white"
+              onClick={maxClaimFun}
+            >
+              Max
+            </Button>
+          </div>
+          <div className="mt-8 flex items-center justify-between gap-4">
+            <Button
+              className="w-full border-[#999] rounded-full"
+              onClick={() => setOpenClaim(false)}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              disabled={!canClaim}
+              className="w-full bg-[#8E58F5] text-white rounded-full border-0 bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0]"
+              onClick={claimFun}
+              loading={claimLoading}
+            >
+              {t("claimReward")}
+            </Button>
+          </div>
+        </Dialog>
+
         {/* <Dialog
           visible={visibleTip}
           showCancelButton

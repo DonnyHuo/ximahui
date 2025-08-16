@@ -202,7 +202,7 @@ const Invite = () => {
           <>
             {info?.contributions?.map((list) => {
               return (
-                <div className="border-0 border-b border-solid border-[#D8D8D8] py-[10px] relative last:border-b-0">
+                <div className="border-0 border-b border-solid border-[#3e3e3e] py-[10px] relative last:border-b-0">
                   <div className="flex items-center justify-between py-1">
                     <span className="text-[14px]">{t("address")}</span>
                     <span className="text-[14px] flex items-center gap-1">
