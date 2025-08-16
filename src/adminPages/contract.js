@@ -417,7 +417,7 @@ const Contract = () => {
         </div>
         <div className="adminCard adminCard4 w-full mt-[20px] py-[30px] px-[16px] text-black">
           <div className="text-[16px] font-bold">设置收益代数</div>
-          <div className="text-[#27B53D] font-bold text-[14px] mt-[10px] flex gap-2">
+          <div className="text-[#8E58F5] font-bold text-[14px] mt-[10px] inline-flex gap-2 bg-black px-3 py-1 rounded-xl">
             <span>当前代数:</span>
             <span>{nowGeneration}</span>
           </div>

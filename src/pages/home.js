@@ -476,7 +476,9 @@ const Home = () => {
           </div>
         </div>
         <div className="relative mt-[20px] p-[20px] rounded-lg border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.05)] text-white">
-          <span className="text-[16px] font-bold">{t("rewardInfo")}</span>
+          <span className="text-[16px] font-bold bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent">
+            {t("rewardInfo")}
+          </span>
           <Link
             to="/invite"
             className="rounded-tr-lg rounded-bl-lg bg-black absolute right-0 top-0 text-[#8E58F5] text-[12px] font-bold px-2 py-1"
