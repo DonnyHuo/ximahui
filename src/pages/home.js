@@ -403,6 +403,19 @@ const Home = () => {
     }
   }, [address]);
 
+  const maxFun = () => {
+    if (maxAmountSupport) {
+      setStakeValue(
+        Math.min(
+          maxAmountValue * 1 - allStaked * 1,
+          rewardTokenInfo?.balance * 1
+        )
+      );
+    } else {
+      setStakeValue(rewardTokenInfo?.balance);
+    }
+  };
+
   return (
     <div className="content-box bg-[#0D0E1E]">
       {/* <div className="flex items-center gap-2 px-[20px] pt-2">
@@ -441,13 +454,21 @@ const Home = () => {
               </span>
             </span>
           </div>
-          <input
-            value={stakeValue}
-            className="w-full h-[40px] border border-solid bg-transparent border-[#333] rounded-[55px] px-4 focus:border-[#C07DFF] text-white text-[14px]"
-            placeholder={`≥ ${minStake}`}
-            type="text"
-            onChange={(e) => setStakeValue(e.target.value)}
-          />
+          <div className="flex items-center justify-between gap-1">
+            <input
+              value={stakeValue}
+              className="w-full h-[40px] border border-solid bg-transparent border-[#333] rounded-[55px] px-4 focus:border-[#C07DFF] text-white text-[14px]"
+              placeholder={`≥ ${minStake}`}
+              type="text"
+              onChange={(e) => setStakeValue(e.target.value)}
+            />
+            <Button
+              className="rounded-full bg-[#C07DFF] text-white border-0"
+              onClick={maxFun}
+            >
+              Max
+            </Button>
+          </div>
           <div className="mt-[20px]">
             {allowance && !loading ? (
               <Button
