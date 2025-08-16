@@ -162,6 +162,8 @@ const Home = () => {
     getMaxAmount();
   }, [address]);
 
+  console.log("maxAmountSupport", maxAmountSupport, maxAmountValue);
+
   const canStake = useMemo(() => {
     if (stakeValue * 1 > rewardTokenInfo?.balance) {
       return false;
