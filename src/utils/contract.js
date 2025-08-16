@@ -115,7 +115,7 @@ export function getContract(contractAddress, abi, funcName, ...params) {
         resolve(response);
       },
       (err) => {
-        console.log(err);
+        console.log("err", funcName, err);
         reject(605);
       }
     );

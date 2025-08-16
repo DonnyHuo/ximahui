@@ -186,7 +186,7 @@ const AdminHome = () => {
         <div className="card px-[20px] py-[20px] relative mt-[50px]">
           <div>总质押金额</div>
           <div>
-            <span className="text-[#27B53D] text-[38px] font-bold">
+            <span className="text-[#8E58F5] text-[38px] font-bold">
               {total?.totalStaked
                 ? formatDecimal(
                     total?.totalStaked / 10 ** rewardTokenInfo?.decimals ?? 18,
@@ -194,7 +194,7 @@ const AdminHome = () => {
                   )
                 : "--"}
             </span>
-            <span className="text-[#27B53D] text-[12px] ml-1">
+            <span className="text-[#8E58F5] text-[12px] ml-1">
               {rewardTokenInfo?.symbol}
             </span>
           </div>
@@ -206,7 +206,7 @@ const AdminHome = () => {
           <div className="w-1/2 card px-[20px] py-[18px]">
             <div>总提取收益</div>
             <div>
-              <p className="text-[#27B53D] text-[26px] font-bold max-w-full">
+              <p className="text-[#8E58F5] text-[26px] font-bold max-w-full">
                 {total?.totalCliamed
                   ? formatDecimal(
                       total?.totalCliamed / 10 ** rewardTokenInfo?.decimals ??
@@ -215,7 +215,7 @@ const AdminHome = () => {
                     )
                   : "--"}
               </p>
-              <p className="text-[#27B53D] text-[12px]">
+              <p className="text-[#8E58F5] text-[12px]">
                 {" "}
                 {rewardTokenInfo?.symbol}
               </p>
@@ -224,7 +224,7 @@ const AdminHome = () => {
           <div className="w-1/2 card px-[20px] py-[18px]">
             <div className="text-[16px] font-bold ">总推荐奖励</div>
             <div>
-              <p className="text-[#27B53D] text-[26px] font-bold max-w-full truncate">
+              <p className="text-[#8E58F5] text-[26px] font-bold max-w-full truncate">
                 {total?.totalRefferRewards
                   ? formatDecimal(
                       total?.totalRefferRewards /
@@ -233,7 +233,7 @@ const AdminHome = () => {
                     )
                   : "--"}
               </p>
-              <p className="text-[#27B53D] text-[12px]">
+              <p className="text-[#8E58F5] text-[12px]">
                 {rewardTokenInfo?.symbol}
               </p>
             </div>
@@ -243,7 +243,7 @@ const AdminHome = () => {
 
       <div className="py-[30px] px-[20px]">
         <Link to="/admin/contract">
-          <button className="bg-[#8E58F5] rounded-[8px] text-black w-full h-[48px] font-bold">
+          <button className="bg-[#8E58F5] rounded-[8px] text-white w-full h-[48px] font-bold">
             操作合约
           </button>
         </Link>
@@ -278,7 +278,7 @@ const AdminHome = () => {
         <div className="text-[14px] flex gap-2">
           <button
             className={`px-[20px] py-1 font-bold rounded-[32px] ${
-              active === 0 ? "bg-[#8E58F5] text-black" : "bg-black text-white"
+              active === 0 ? "bg-[#8E58F5] text-white" : "bg-black text-white"
             }`}
             onClick={() => setActive(0)}
           >
@@ -286,7 +286,7 @@ const AdminHome = () => {
           </button>
           <button
             className={`px-[20px] py-1 font-bold rounded-[32px] ${
-              active === 1 ? "bg-[#8E58F5] text-black" : "bg-black text-white"
+              active === 1 ? "bg-[#8E58F5] text-white" : "bg-black text-white"
             }`}
             onClick={() => setActive(1)}
           >

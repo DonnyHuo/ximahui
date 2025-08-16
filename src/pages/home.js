@@ -50,8 +50,8 @@ const Home = () => {
       address,
       stakingContractAddress
     );
-    const decimals = await getContract(usdtAddress, erc20Abi, "decimals");
-    const allowance = ethers.utils.formatUnits(amounts, decimals) * 1;
+    // const decimals = await getContract(usdtAddress, erc20Abi, "decimals");
+    const allowance = ethers.utils.formatUnits(amounts, usdtDecimals) * 1;
     setAllowance(allowance);
   };
 
@@ -86,10 +86,6 @@ const Home = () => {
 
   const [stakeLoading, setStakeLoading] = useState(false);
 
-  const [referrer, setReferrer] = useState("");
-
-  const [staked, setStaked] = useState(false);
-
   const [stakeValue, setStakeValue] = useState("");
 
   const [rewardTokenInfo, setRewardTokenInfo] = useState({});
@@ -106,7 +102,7 @@ const Home = () => {
 
   useEffect(() => {
     getDecimals();
-  });
+  }, []);
 
   const [maxAmountSupport, setMaxAmountSupport] = useState(true);
 
@@ -122,7 +118,6 @@ const Home = () => {
       stakeAbi,
       "maxAmountSupport"
     );
-    console.log("maxAmountSupport", maxAmountSupport);
 
     setMaxAmountSupport(maxAmountSupport);
   };
@@ -133,7 +128,6 @@ const Home = () => {
       stakeAbi,
       "maxAmountValue"
     );
-    console.log("maxAmountValue", maxAmountValue);
 
     setMaxAmountValue(ethers.utils.formatUnits(maxAmountValue, usdtDecimals));
   };
@@ -201,7 +195,6 @@ const Home = () => {
       ethers.utils.parseUnits(stakeValue, usdtDecimals)
     )
       .then((res) => {
-        console.log(res);
         toast.success(t("betSuccess"));
         setStakeValue("");
         setTimeout(() => {
@@ -219,7 +212,6 @@ const Home = () => {
   const [userInfo, setUserInfo] = useState({});
 
   const getRewardTokenInfo = async () => {
-    const decimals = await getContract(usdtAddress, erc20Abi, "decimals");
     const symbol = await getContract(usdtAddress, erc20Abi, "symbol");
     const balanceOf = await getContract(
       usdtAddress,
@@ -228,11 +220,11 @@ const Home = () => {
       address
     );
 
-    const balance = ethers.utils.formatUnits(balanceOf, decimals) * 1;
+    const balance = ethers.utils.formatUnits(balanceOf, usdtDecimals) * 1;
 
     setRewardTokenInfo({
       symbol,
-      decimals,
+      usdtDecimals,
       balance
     });
   };
@@ -312,11 +304,11 @@ const Home = () => {
       });
   };
 
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(invite);
 
-  const [visibleTip, setVisibleTip] = useState(false);
+  // const [visibleTip, setVisibleTip] = useState(false);
 
-  const [showTips, setShowTips] = useState(false);
+  // const [showTips, setShowTips] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -325,17 +317,17 @@ const Home = () => {
   const bindReferrerFun = async () => {
     setBindLoading(true);
 
-    const overrides = {
-      gasLimit: 300000
-      // gasPrice: ethers.utils.parseUnits("5", "gwei")
-    };
+    // const overrides = {
+    //   gasLimit: 300000
+    //   // gasPrice: ethers.utils.parseUnits("5", "gwei")
+    // };
 
     await getWriteContractLoad(
       stakingContractAddress,
       stakeAbi,
       "bindReferrer",
-      invite.toLocaleLowerCase(),
-      overrides
+      invite.toLocaleLowerCase()
+      // overrides
     )
       .then(() => {
         toast.success(t("bindSuccess"));
@@ -351,35 +343,6 @@ const Home = () => {
       });
   };
 
-  const [reBindLoading, setReBindLoading] = useState(false);
-
-  const reBindReferrerFun = async (inviter) => {
-    setReBindLoading(true);
-
-    const overrides = {
-      gasLimit: 300000
-      // gasPrice: ethers.utils.parseUnits("5", "gwei")
-    };
-
-    await getWriteContractLoad(
-      stakingContractAddress,
-      stakeAbi,
-      "bindReferrer",
-      inviter.toLocaleLowerCase(),
-      overrides
-    )
-      .then(() => {
-        toast.success(t("bindSuccess"));
-      })
-      .catch((err) => {
-        console.log("err", err);
-        toast.error(t("bindFail"));
-      })
-      .finally(() => {
-        setReBindLoading(false);
-      });
-  };
-
   const confirmButtonText = useMemo(() => {
     if (bindLoading) {
       return <Loading color="#3f45ff" size="20px" />;
@@ -387,14 +350,6 @@ const Home = () => {
       return t("confirm");
     }
   }, [bindLoading, t]);
-
-  const reConfirmButtonText = useMemo(() => {
-    if (reBindLoading) {
-      return <Loading color="#3f45ff" size="20px" />;
-    } else {
-      return t("confirm");
-    }
-  }, [reBindLoading, t]);
 
   const [rewardList, setRewardList] = useState([]);
 
@@ -433,10 +388,6 @@ const Home = () => {
     const stakedAmount = res?.user?.currentStakedAmount;
 
     setStakedAmount(stakedAmount ? stakedAmount / 10 ** 18 : 0);
-
-    setReferrer(res?.user?.referrer?.id);
-
-    setStaked(!!stakedAmount);
 
     setTimeout(() => {
       setLoading(false);
@@ -596,9 +547,9 @@ const Home = () => {
           </div>
         </div>
         <div className="mt-[20px] p-[20px] rounded-lg border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.05)] text-white">
-          <div className="text-[16px] font-bold mb-[10px]">
+          <span className="text-[16px] font-bold mb-[10px] bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent">
             {t("earningsRecord")}
-          </div>
+          </span>
           {rewardList?.length ? (
             rewardList?.map((list) => {
               return (
@@ -672,11 +623,10 @@ const Home = () => {
           }}
         >
           <div className="p-[20px] text-center text-[14px]">
-            <p className="font-bold mb-2">{t("switchV3")}</p>
             <p>{t("acceptInvitation", { address: shortStr(invite) })}</p>
           </div>
         </Dialog>
-        <Dialog
+        {/* <Dialog
           visible={visibleTip}
           showCancelButton
           showConfirmButton={false}
@@ -689,8 +639,8 @@ const Home = () => {
           <div className="p-[20px] text-center text-[14px] font-medium">
             {t("alreadyAccepted")}
           </div>
-        </Dialog>
-        <Dialog
+        </Dialog> */}
+        {/* <Dialog
           visible={showTips}
           showCancelButton
           showConfirmButton={false}
@@ -703,7 +653,7 @@ const Home = () => {
           <div className="p-[20px] text-center text-[14px] font-medium">
             {t("alreadyStaked")}
           </div>
-        </Dialog>
+        </Dialog> */}
         {/* <Dialog
           visible={showChangeVersionModal}
           showCancelButton

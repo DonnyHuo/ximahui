@@ -195,9 +195,9 @@ const Invite = () => {
         </div>
       )}
       <div className="w-full border border-solid border-[rgba(255,255,255,0.17)] bg-[rgba(255,255,255,0.1)] my-[20px] rounded-2xl p-[20px] text-white">
-        <div className="text-[16px] font-bold mb-[20px]">
+        <span className="text-[16px] font-bold mb-[20px] bg-gradient-to-l from-[#5830E9] [#5830E9] [#C07DFF] to-[#FF83B0] bg-clip-text text-transparent">
           {t("invitationRewardRecord")}
-        </div>
+        </span>
         {info?.contributions?.length ? (
           <>
             {info?.contributions?.map((list) => {

@@ -19,12 +19,15 @@ const Footer = () => {
   const [showAdmin, setShowAdmin] = useState(false);
 
   const getOwner = useCallback(async () => {
-    const owner = await getContract(contractAddress, stakeAbi, "owner");
-    console.log("owner", owner);
-    setShowAdmin(
-      address.toLowerCase() === owner.toLowerCase() ||
-        adminAddress.includes(address.toLowerCase())
-    );
+    if (contractAddress) {
+      const owner = await getContract(contractAddress, stakeAbi, "owner");
+      if (
+        address.toLowerCase() === owner.toLowerCase() ||
+        adminAddress.filter((add) => add.toLowerCase === address.toLowerCase())
+      ) {
+        setShowAdmin(true);
+      }
+    }
   }, [address, adminAddress, contractAddress]);
 
   useEffect(() => {

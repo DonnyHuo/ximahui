@@ -16,14 +16,8 @@ import { getContract, getWriteContractLoad } from "../utils";
 import AdminHeader from "./header";
 
 const Contract = () => {
-  const version = useSelector((state) => state.version);
-
-  const stakingContractAddress = useSelector((state) =>
-    version === 2
-      ? state.stakingContractAddressV2
-      : version === 3
-      ? state.stakingContractAddressV3
-      : state.stakingContractAddress
+  const stakingContractAddress = useSelector(
+    (state) => state.stakingContractAddress
   );
 
   const [transferOwnerAddress, setTransferOwnerAddress] = useState("");
@@ -162,7 +156,7 @@ const Contract = () => {
 
   useEffect(() => {
     getMaxGeneration();
-  }, [stakingContractAddress, version]);
+  }, [stakingContractAddress]);
 
   const [blacklist, setBlacklist] = useState("");
 
@@ -343,32 +337,30 @@ const Contract = () => {
           </Button>
         </div>
 
-        {[3].includes(version) && (
-          <div className="adminCard w-full mt-[20px] py-[30px] px-[16px] text-black">
-            <div className="text-[16px] font-bold">提币</div>
-            <div className="flex items-center justify-between text-[14px] mt-2">
-              <span>总质押金额</span>
-              <span>
-                {total?.totalStaked
-                  ? (
-                      total?.totalStaked / 10 ** rewardTokenInfo?.decimals ?? 18
-                    ).toFixed(2)
-                  : 0}{" "}
-                {rewardTokenInfo?.symbol}
-              </span>
-            </div>
-            <Button
-              onClick={withdrawBalance}
-              loading={withdrawLoading}
-              className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
-            >
-              <span className="flex items-center justify-center gap-1">
-                <Hot className="w-[24px] h-[24px]" />
-                <span>提币</span>
-              </span>
-            </Button>
+        <div className="adminCard w-full mt-[20px] py-[30px] px-[16px] text-black">
+          <div className="text-[16px] font-bold">提币</div>
+          <div className="flex items-center justify-between text-[14px] mt-2">
+            <span>总质押金额</span>
+            <span>
+              {total?.totalStaked
+                ? (
+                    total?.totalStaked / 10 ** rewardTokenInfo?.decimals ?? 18
+                  ).toFixed(2)
+                : 0}{" "}
+              {rewardTokenInfo?.symbol}
+            </span>
           </div>
-        )}
+          <Button
+            onClick={withdrawBalance}
+            loading={withdrawLoading}
+            className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
+          >
+            <span className="flex items-center justify-center gap-1">
+              <Hot className="w-[24px] h-[24px]" />
+              <span>提币</span>
+            </span>
+          </Button>
+        </div>
 
         <div className="adminCard adminCard2 w-full mt-[20px] py-[30px] px-[16px] text-black">
           <div className="text-[16px] font-bold">设置代数收益比例</div>
@@ -401,30 +393,28 @@ const Contract = () => {
             </span>
           </Button>
         </div>
-        {[3].includes(version) && (
-          <div className="adminCard adminCard3 w-full mt-[20px] py-[30px] px-[16px] text-black">
-            <div className="text-[16px] font-bold">设置静态每日收益率</div>
-            <div className="mt-[10px]">
-              <input
-                type="text"
-                value={dailyRewardRate}
-                className="bg-white rounded-[55px] px-[20px] h-[40px] w-full text-[14px] border border-solid border-black"
-                placeholder="请输入收益率"
-                onChange={(e) => setDailyRewardRate(e.target.value)}
-              />
-            </div>
-            <Button
-              loading={dailyRewardRateLoading}
-              onClick={setDailyRewardRateFun}
-              className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
-            >
-              <span className="flex items-center justify-center gap-1">
-                <Setting className="w-[24px] h-[24px]" />
-                <span>设置</span>
-              </span>
-            </Button>
+        <div className="adminCard adminCard3 w-full mt-[20px] py-[30px] px-[16px] text-black">
+          <div className="text-[16px] font-bold">设置静态每日收益率</div>
+          <div className="mt-[10px]">
+            <input
+              type="text"
+              value={dailyRewardRate}
+              className="bg-white rounded-[55px] px-[20px] h-[40px] w-full text-[14px] border border-solid border-black"
+              placeholder="请输入收益率"
+              onChange={(e) => setDailyRewardRate(e.target.value)}
+            />
           </div>
-        )}
+          <Button
+            loading={dailyRewardRateLoading}
+            onClick={setDailyRewardRateFun}
+            className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
+          >
+            <span className="flex items-center justify-center gap-1">
+              <Setting className="w-[24px] h-[24px]" />
+              <span>设置</span>
+            </span>
+          </Button>
+        </div>
         <div className="adminCard adminCard4 w-full mt-[20px] py-[30px] px-[16px] text-black">
           <div className="text-[16px] font-bold">设置收益代数</div>
           <div className="text-[#27B53D] font-bold text-[14px] mt-[10px] flex gap-2">
@@ -452,66 +442,30 @@ const Contract = () => {
           </Button>
         </div>
 
-        {[3].includes(version) && (
-          <div className="adminCard adminCard5 w-full mt-[20px] py-[30px] px-[16px] text-black">
-            <div className="text-[16px] font-bold flex justify-between">
-              <span>设置黑名单</span>{" "}
-              <>
-                {blacklist ? (
-                  <span className="text-[14px]">
-                    {inBlackList ? "在黑名单" : "不在黑名单"}
-                  </span>
-                ) : null}
-              </>
-            </div>
-            <div className="mt-[10px]">
-              <input
-                type="text"
-                value={blacklist}
-                className="bg-white rounded-[55px] px-[20px] h-[40px] w-full text-[14px] border border-solid border-black"
-                placeholder="请输入黑名单地址"
-                onChange={(e) => setBlacklist(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                loading={blacklistLoading && status}
-                onClick={() => setBlacklistFun(true)}
-                className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
-              >
-                <span className="flex items-center justify-center gap-1">
-                  <Setting className="w-[24px] h-[24px]" />
-                  <span>设置</span>
+        <div className="adminCard adminCard5 w-full mt-[20px] py-[30px] px-[16px] text-black">
+          <div className="text-[16px] font-bold flex justify-between">
+            <span>设置黑名单</span>{" "}
+            <>
+              {blacklist ? (
+                <span className="text-[14px]">
+                  {inBlackList ? "在黑名单" : "不在黑名单"}
                 </span>
-              </Button>
-              <Button
-                loading={blacklistLoading && !status}
-                onClick={() => setBlacklistFun(false)}
-                className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
-              >
-                <span className="flex items-center justify-center gap-1">
-                  <Cancel className="w-[24px] h-[24px]" />
-                  <span>取消</span>
-                </span>
-              </Button>
-            </div>
+              ) : null}
+            </>
           </div>
-        )}
-        {[3].includes(version) && (
-          <div className="adminCard adminCard6  w-full mt-[20px] py-[30px] px-[16px] text-black">
-            <div className="text-[16px] font-bold">设置波比直推门限人数</div>
-            <div className="mt-[10px]">
-              <input
-                type="text"
-                value={minDirectFriendsNums}
-                className="bg-white rounded-[55px] px-[20px] h-[40px] w-full text-[14px] border border-solid border-black"
-                placeholder="请输入波比直推门限人数 0-15"
-                onChange={(e) => setMinDirectFriendsNums(e.target.value)}
-              />
-            </div>
+          <div className="mt-[10px]">
+            <input
+              type="text"
+              value={blacklist}
+              className="bg-white rounded-[55px] px-[20px] h-[40px] w-full text-[14px] border border-solid border-black"
+              placeholder="请输入黑名单地址"
+              onChange={(e) => setBlacklist(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-3">
             <Button
-              loading={minDirectFriendsNumsLoading}
-              onClick={setMinDirectFriendsNumsFun}
+              loading={blacklistLoading && status}
+              onClick={() => setBlacklistFun(true)}
               className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
             >
               <span className="flex items-center justify-center gap-1">
@@ -519,8 +473,40 @@ const Contract = () => {
                 <span>设置</span>
               </span>
             </Button>
+            <Button
+              loading={blacklistLoading && !status}
+              onClick={() => setBlacklistFun(false)}
+              className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
+            >
+              <span className="flex items-center justify-center gap-1">
+                <Cancel className="w-[24px] h-[24px]" />
+                <span>取消</span>
+              </span>
+            </Button>
           </div>
-        )}
+        </div>
+        <div className="adminCard adminCard6  w-full mt-[20px] py-[30px] px-[16px] text-black">
+          <div className="text-[16px] font-bold">设置波比直推门限人数</div>
+          <div className="mt-[10px]">
+            <input
+              type="text"
+              value={minDirectFriendsNums}
+              className="bg-white rounded-[55px] px-[20px] h-[40px] w-full text-[14px] border border-solid border-black"
+              placeholder="请输入波比直推门限人数 0-15"
+              onChange={(e) => setMinDirectFriendsNums(e.target.value)}
+            />
+          </div>
+          <Button
+            loading={minDirectFriendsNumsLoading}
+            onClick={setMinDirectFriendsNumsFun}
+            className="rounded-[55px] h-[40px] w-full bg-black text-[#8E58F5] text-[14px] mt-[10px] border-0"
+          >
+            <span className="flex items-center justify-center gap-1">
+              <Setting className="w-[24px] h-[24px]" />
+              <span>设置</span>
+            </span>
+          </Button>
+        </div>
       </div>
       <ToastContainer
         position="top-center"
