@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   address: "",
-  stakingContractAddress: "0xfBcFb744E5771DC2D4d7CFa44acFe737D80cE6B1",
+  stakingContractAddress: "0xa455eC378b07B734BAdAC122824b2e98f8E7c126",
   usdtAddress: "0x55d398326f99059fF775485246999027B3197955",
   adminAddress: [
     "0x2a32b1623a7f6431697f7d7643d629aa41db5181",
