@@ -20,12 +20,16 @@ const Footer = () => {
 
   const getOwner = useCallback(async () => {
     if (contractAddress) {
+      const arr = adminAddress.filter(
+        (add) => add.toLowerCase() === address.toLowerCase()
+      );
+
       const owner = await getContract(contractAddress, stakeAbi, "owner");
-      if (
-        address.toLowerCase() === owner.toLowerCase() ||
-        adminAddress.filter((add) => add.toLowerCase === address.toLowerCase())
-      ) {
+
+      if (address.toLowerCase() === owner.toLowerCase() || arr?.length) {
         setShowAdmin(true);
+      } else {
+        setShowAdmin(false);
       }
     }
   }, [address, adminAddress, contractAddress]);
