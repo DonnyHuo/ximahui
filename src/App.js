@@ -22,7 +22,6 @@ function AppContent() {
   const location = useLocation();
 
   const currentRoute = routes.find((route) => route.path === location.pathname);
-  console.log("currentRoute", currentRoute);
 
   const showHeader = currentRoute ? currentRoute.showHeader : true;
 

@@ -129,7 +129,6 @@ const AdminHome = () => {
   const getUserInfo = useCallback(async () => {
     await getContract(stakingContractAddress, stakeAbi, "getUserInfo", search)
       .then((userInfo) => {
-        console.log("userInfo", userInfo);
         setUserInfo2({
           claimedRewards:
             ethers.utils.formatUnits(

@@ -244,7 +244,6 @@ const Home = () => {
   const getUserInfo = useCallback(async () => {
     await getContract(stakingContractAddress, stakeAbi, "getUserInfo", address)
       .then((userInfo) => {
-        console.log("userInfo", userInfo);
         setUserInfo({
           claimedRewards:
             ethers.utils.formatUnits(
@@ -407,7 +406,6 @@ const Home = () => {
       stakeAbi,
       "minClaimAmount"
     );
-    console.log("amount", amount);
     setMinClaimAmount(ethers.utils.formatUnits(amount, usdtDecimals));
   }, [stakingContractAddress, usdtDecimals]);
 
