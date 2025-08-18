@@ -7,10 +7,15 @@ import { ReactComponent as GoBack } from "../../src/assets/img/goBack.svg";
 import IntroLogo from "../../src/assets/img/logo.png";
 import { ReactComponent as Telegram } from "../../src/assets/img/telegram.svg";
 import { ReactComponent as X } from "../../src/assets/img/X.svg";
-import { copy } from "../utils";
+import { copy, shortStr } from "../utils";
+import { useSelector } from "react-redux";
 
 const Introduction = () => {
   const { t } = useTranslation();
+
+  const stakingContractAddress = useSelector(
+    (state) => state.stakingContractAddress
+  );
 
   return (
     <div className="introduction">
@@ -39,6 +44,7 @@ const Introduction = () => {
           <div>{t("intro.description")[3]}</div>
         </div>
 
+        {/* 
         <div className="mt-[30px] text-[12px]">
           <div className="text-[#FF9500] font-bold">{t("intro.details")}</div>
           <a
@@ -48,44 +54,85 @@ const Introduction = () => {
           >
             <button>Galaxy.pdf</button>
           </a>
-        </div>
+        </div> */}
+        <div className="flex flex-col gap-4 mt-8">
+          <div className="flex items-center justify-between">
+            <div className="mt-[10px] font-bold">{t("intro.officialDapp")}</div>
+            <div className="flex items-center justify-center gap-2 underline">
+              <a
+                href="https://www.galaxyexpress.net"
+                target="_blank"
+                rel="noreferrer"
+              >
+                https://www.galaxyexpress.net
+              </a>
+              <Copy
+                onClick={() => {
+                  copy("https://www.galaxyexpress.net");
+                  toast.success(t("copySuccess"));
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="mt-[10px] font-bold">
+              {t("intro.contractAddress")}
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <a
+                href={`https://bscscan.com/address/${stakingContractAddress}`}
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                {shortStr(stakingContractAddress)}
+              </a>
+              <Copy
+                onClick={() => {
+                  copy(stakingContractAddress);
+                  toast.success(t("copySuccess"));
+                }}
+              />
+            </div>
+          </div>
 
-        <div>
-          <div className="text-[14px] font-bold text-center mt-2 mb-1">
-            {t("customerSupportEmail")}
+          <div className="flex items-center justify-between">
+            <div className="text-[14px] font-bold text-center mt-2 mb-1">
+              {t("customerSupportEmail")}
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[12px]">Galaxy_000001</span>
+              <Copy
+                onClick={() => {
+                  copy("Galaxy_000001");
+                  toast.success(t("copySuccess"));
+                }}
+              />
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-[12px]">Galaxy_000001</span>
-            <Copy
-              onClick={() => {
-                copy("Galaxy_000001");
-                toast.success(t("copySuccess"));
-              }}
-            />
-          </div>
-        </div>
 
-        <div className="mt-4">
-          <div className="text-[14px] font-bold text-center mb-3">
-            {t("contactInfo")}
-          </div>
-          <div className="text-[12px] flex items-center justify-center gap-[60px] text-center">
-            <a
-              target="_blank"
-              className="text-[12px] font-bold underline text-[#8E58F5]"
-              href="https://t.me/galaxy_group1"
-              rel="noreferrer"
-            >
-              <Telegram className="w-[20px] h-[20px]" />
-            </a>
-            <a
-              target="_blank"
-              className="text-[12px] font-bold underline text-[#8E58F5]"
-              href="https://x.com/galaxy_Century"
-              rel="noreferrer"
-            >
-              <X className="w-[16px] h-[16px]" />
-            </a>
+          <div className="flex items-center justify-between">
+            <div className="text-[14px] font-bold text-center mb-3">
+              {t("contactInfo")}
+            </div>
+            <div className="text-[12px] flex items-center justify-center gap-[32px] text-center">
+              <a
+                target="_blank"
+                className="text-[12px] font-bold underline text-[#8E58F5]"
+                href="https://t.me/galaxy_group1"
+                rel="noreferrer"
+              >
+                <Telegram className="w-[20px] h-[20px]" />
+              </a>
+              <a
+                target="_blank"
+                className="text-[12px] font-bold underline text-[#8E58F5]"
+                href="https://x.com/galaxy_Century"
+                rel="noreferrer"
+              >
+                <X className="w-[16px] h-[16px]" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
